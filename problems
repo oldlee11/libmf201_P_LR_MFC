@@ -1,0 +1,25 @@
+#include <stdio.h>
+int main()
+{
+        int c = 2;
+        int &y = c;
+        int *p = &c;
+        printf("&c %x \n", &c);
+        printf("p %x \n", p);
+        printf("y %x \n", y);
+        print("&y %x \n", &y)
+}
+
+&c 415d7dc 
+p 415d7dc 
+y 2
+&y 415d7dc
+
+1)
+int y=c   涉及到了内存的频繁释放和分配
+2)
+int *p=&c   p开辟另一个内存 内部存储c的地址
+3)
+int &y = c;     没有开辟内存  只是c的别名   
+y的地址和c的地址  是一样的   就是一个东西
+这样内存空间不会频繁变动
