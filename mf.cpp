@@ -149,46 +149,46 @@ mf_int Scheduler::get_job()
     return block.second;
 }
 
-mf_int Scheduler::get_bpr_job(mf_int first_block, bool is_column_oriented)
-{
-    lock_guard<mutex> lock(mtx);
-    mf_int another = first_block;
-    vector<pair<mf_float, mf_int>> locked_blocks;
+// mf_int Scheduler::get_bpr_job(mf_int first_block, bool is_column_oriented)
+// {
+//     lock_guard<mutex> lock(mtx);
+//     mf_int another = first_block;
+//     vector<pair<mf_float, mf_int>> locked_blocks;
 
-    while(!pq.empty())
-    {
-        pair<mf_float, mf_int> block = pq.top();
-        pq.pop();
+//     while(!pq.empty())
+//     {
+//         pair<mf_float, mf_int> block = pq.top();
+//         pq.pop();
 
-        mf_int p_block = block.second/nr_bins;
-        mf_int q_block = block.second%nr_bins;
+//         mf_int p_block = block.second/nr_bins;
+//         mf_int q_block = block.second%nr_bins;
 
-        auto is_rejected = [&] ()
-        {
-            if(is_column_oriented)
-                return first_block%nr_bins != q_block ||
-                       busy_p_blocks[p_block];
-            else
-                return first_block/nr_bins != p_block ||
-                         busy_q_blocks[q_block];
-        };
+//         auto is_rejected = [&] ()
+//         {
+//             if(is_column_oriented)
+//                 return first_block%nr_bins != q_block ||
+//                        busy_p_blocks[p_block];
+//             else
+//                 return first_block/nr_bins != p_block ||
+//                          busy_q_blocks[q_block];
+//         };
 
-        if(is_rejected())
-            locked_blocks.push_back(block);
-        else
-        {
-            busy_p_blocks[p_block] = 1;
-            busy_q_blocks[q_block] = 1;
-            another = block.second;
-            break;
-        }
-    }
+//         if(is_rejected())
+//             locked_blocks.push_back(block);
+//         else
+//         {
+//             busy_p_blocks[p_block] = 1;
+//             busy_q_blocks[q_block] = 1;
+//             another = block.second;
+//             break;
+//         }
+//     }
 
-    for(auto &block : locked_blocks)
-        pq.push(block);
+//     for(auto &block : locked_blocks)
+//         pq.push(block);
 
-    return another;
-}
+//     return another;
+// }
 
 void Scheduler::put_job(mf_int block_idx, mf_double loss, mf_double error)
 {
@@ -219,20 +219,20 @@ void Scheduler::put_job(mf_int block_idx, mf_double loss, mf_double error)
     }
 }
 
-void Scheduler::put_bpr_job(mf_int first_block, mf_int second_block)
-{
-    if(first_block == second_block)
-        return;
+// void Scheduler::put_bpr_job(mf_int first_block, mf_int second_block)
+// {
+//     if(first_block == second_block)
+//         return;
 
-    lock_guard<mutex> lock(mtx);
-    {
-        busy_p_blocks[second_block/nr_bins] = 0;
-        busy_q_blocks[second_block%nr_bins] = 0;
-        mf_float priority =
-            (mf_float)counts[second_block]+distribution(generator);
-        pq.emplace(priority, second_block);
-    }
-}
+//     lock_guard<mutex> lock(mtx);
+//     {
+//         busy_p_blocks[second_block/nr_bins] = 0;
+//         busy_q_blocks[second_block%nr_bins] = 0;
+//         mf_float priority =
+//             (mf_float)counts[second_block]+distribution(generator);
+//         pq.emplace(priority, second_block);
+//     }
+// }
 
 mf_double Scheduler::get_loss()
 {
